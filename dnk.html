@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quiz</title>
+</head>
+<body>
+    <h1>Language Quiz</h1>
+
+    <button onclick="speak('यदि आप मरम्मत पर वारंटी की पेशकश नहीं करते हैं, तो क्या होता है?')">Speak Hindi</button>
+    <button onclick="speak('ఇది పనిచేస్తుందా లేదా?')">Speak Telugu</button>
+    <button onclick="speak('இந்த வினாடி வினாவைப் பேசுங்கள்')">Speak Tamil</button>
+    <button onclick="speak('Speak this question aloud')">Speak English</button>
+
+    <script>
+        let language = "{{ language_code | default('en') }}";
+
+        const langMap = {
+            'en': 'en',
+            'hi': 'hi',
+            'te': 'te',
+            'ta': 'ta'
+        };
+
+        async function speak(text) {
+            const langCode = langMap[language] || 'en';
+            try {
+                const res = await fetch(`/speak?text=${encodeURIComponent(text)}&lang=${langCode}`);
+                if (!res.ok) throw new Error("TTS fetch failed");
+
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const audio = new Audio(url);
+                audio.onerror = (e) => console.error("Audio load error:", e);
+                await audio.play();
+            } catch (err) {
+                console.error("Speak error:", err);
+            }
+        }
+    </script>
+</body>
+</html>
